@@ -1,0 +1,22 @@
+{# Parámetros: view ('all' | 'cantidad_existente' | 'cantidad_ideal'), funcion, funciones #}
+<div class="mb-2 d-flex align-items-center gap-2">
+  <div class="btn-group">
+    <a class="btn {% if view == 'all' %}btn-primary text-white{% else %}btn-outline-primary{% endif %}"
+       href="{% url 'maletin' %}?funcion={{ funcion }}">Editar todo</a>
+
+    <a class="btn {% if view == 'cantidad_existente' %}btn-primary text-white{% else %}btn-outline-primary{% endif %}"
+       href="{% url 'maletin_onecol' 'cantidad_existente' %}?funcion={{ funcion }}">Solo Cant. existente</a>
+
+    <a class="btn {% if view == 'cantidad_ideal' %}btn-primary text-white{% else %}btn-outline-primary{% endif %}"
+       href="{% url 'maletin_onecol' 'cantidad_ideal' %}?funcion={{ funcion }}">Solo Cant. ideal</a>
+  </div>
+
+  <form method="get" action="" class="ms-2 d-flex align-items-center gap-2">
+    <label class="form-label m-0">Función:</label>
+    <select name="funcion" class="form-select form-select-sm" style="width:120px" onchange="this.form.submit()">
+      {% for f in funciones %}
+        <option value="{{ f }}" {% if f == funcion %}selected{% endif %}>{{ f }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>

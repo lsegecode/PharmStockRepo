@@ -1,0 +1,75 @@
+{% extends "stock/base.html" %}
+{% block title %}Farm Central{% endblock %}
+{% block content %}
+
+<h2 class="mb-3">Modificar Stock Farm Central</h2>
+
+{% include "stock/_farm_central_toolbar.html" with view='all' %}
+
+<table class="table-compact">
+  <thead>
+    <tr>
+      <th style="width:160px;">Código</th>
+      <th>Descripción</th>
+      <th style="width:120px;">Cant. existente</th>
+      <th style="width:120px;">Punto Pedido</th>
+      <th style="width:120px;">Stock Ideal</th>
+      <th style="width:120px;">Stock Crítico</th>
+      <th style="width:120px;">Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="rows">
+    {% for row in rows %}
+      {% include "stock/_farm_central_row.html" with row=row %}
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="mt-3 d-flex gap-2">
+  <button id="saveAllBtn" type="button" class="btn btn-success">💾 Guardar todo</button>
+  <button type="button" class="btn btn-danger" onclick="location.reload()">↩️ Descartar cambios</button>
+</div>
+
+<script>
+  function getCookie(name){
+    const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return m ? m.pop() : '';
+  }
+
+  document.getElementById('saveAllBtn').addEventListener('click', async () => {
+    const rows = Array.from(document.querySelectorAll('#rows tr[id^="row-"]'));
+    const items = rows.map(tr => ({
+      codigo: tr.getAttribute('data-code'),
+      cantidad_existente: tr.querySelector('input[name="cantidad_existente"]')?.value,
+      punto_pedido:      tr.querySelector('input[name="punto_pedido"]')?.value,
+      stock_ideal:       tr.querySelector('input[name="stock_ideal"]')?.value,
+      stock_critico:     tr.querySelector('input[name="stock_critico"]')?.value,
+    }));
+
+    const resp = await fetch("{% url 'farm_central_save_all' %}", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+      body: JSON.stringify({ items })
+    });
+    const data = await resp.json();
+    if (data.ok) alert('✔ Guardado masivo OK. Filas afectadas: ' + (data.updated ?? 0));
+    else alert('❌ Error: ' + (data.error || 'desconocido'));
+  });
+
+  // Navegación ↑/↓/Enter por la misma columna
+  document.addEventListener('keydown', (e) => {
+    const a = document.activeElement;
+    if (!a || !a.matches('input[type="number"]')) return;
+    if (['ArrowDown','ArrowUp','Enter'].includes(e.key)) {
+      e.preventDefault();
+      const name = a.getAttribute('name');
+      const list = Array.from(document.querySelectorAll(`input[name="${name}"]`));
+      const i = list.indexOf(a);
+      const delta = e.key === 'ArrowUp' ? -1 : 1;
+      const next = list[i + delta];
+      if (next) { next.focus(); next.select(); }
+    }
+  });
+</script>
+
+{% endblock %}

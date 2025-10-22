@@ -1,0 +1,68 @@
+{% extends "stock/base.html" %}
+{% block title %}Stock Maletín{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Stock Maletín</h2>
+
+{% include "stock/_maletin_toolbar.html" with view='all' funcion=funcion funciones=funciones %}
+
+<table class="table-compact">
+  <thead>
+    <tr>
+      <th style="width:80px;">Función</th>
+      <th style="width:160px;">Código</th>
+      <th>Descripción</th>
+      <th style="width:120px;">Cant. existente</th>
+      <th style="width:120px;">Cant. ideal</th>
+      <th style="width:120px;">Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="rows">
+    {% for row in rows %}
+      {% include "stock/_maletin_row.html" with row=row %}
+    {% endfor %}
+  </tbody>
+</table>
+
+
+<div class="mt-2 d-flex gap-2">
+  <button id="saveAllBtnMaletin" type="button" class="btn btn-primary">💾 Guardar todo</button>
+  <button type="button" class="btn btn-cancel" onclick="location.reload()">↩️ Descartar</button>
+</div>
+
+<script>
+  function getCookie(name){ const m=document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)'); return m?m.pop():''; }
+  document.getElementById('saveAllBtnMaletin').addEventListener('click', async () => {
+    const rows = Array.from(document.querySelectorAll('#rows tr[id^="row-"]'));
+    const items = rows.map(tr => ({
+      codigo: tr.getAttribute('data-code'),
+      funcion: tr.getAttribute('data-funcion'),
+      cantidad_existente: tr.querySelector('input[name="cantidad_existente"]')?.value,
+      cantidad_ideal:     tr.querySelector('input[name="cantidad_ideal"]')?.value,
+    }));
+    const resp = await fetch("{% url 'maletin_save_all' %}", {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
+      body: JSON.stringify({ items })
+    });
+    const data = await resp.json();
+    if (data.ok) alert('✔ Guardado masivo OK. Cantidades: '+(data.changed_qty||0)+'; Ideales: '+(data.changed_ideal||0));
+    else alert('Error: '+(data.error||'desconocido'));
+  });
+
+  // Navegación ↑/↓/Enter por columna
+  document.addEventListener('keydown', (e) => {
+    const a = document.activeElement;
+    if (!a || !a.matches('input[type="number"]')) return;
+    if (['ArrowDown','ArrowUp','Enter'].includes(e.key)) {
+      e.preventDefault();
+      const name=a.getAttribute('name');
+      const list=Array.from(document.querySelectorAll(`input[name="${name}"]`));
+      const i=list.indexOf(a);
+      const delta=e.key==='ArrowUp'?-1:1;
+      const next=list[i+delta];
+      if(next){ next.focus(); next.select(); }
+    }
+  });
+</script>
+{% endblock %}

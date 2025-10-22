@@ -1,0 +1,31 @@
+<tr id="row-{{ row.codigo }}-{{ row.funcion }}" data-code="{{ row.codigo }}" data-funcion="{{ row.funcion }}">
+  <td style="width:80px;">{{ row.funcion }}</td>
+  <td style="width:160px;">{{ row.codigo }}</td>
+  <td>{{ row.descripcion }}</td>
+
+  <td style="width:120px;">
+    <input type="number"
+           name="cantidad_existente"
+           value="{{ row.cantidad_existente }}"
+           form="f-{{ row.codigo }}-{{ row.funcion }}-full"
+    />
+  </td>
+
+  <td style="width:120px;">
+    <input type="number"
+           name="cantidad_ideal"
+           value="{{ row.cantidad_ideal }}"
+           form="f-{{ row.codigo }}-{{ row.funcion }}-full"
+    />
+  </td>
+
+  <td style="width:120px;" class="actions">
+    <form id="f-{{ row.codigo }}-{{ row.funcion }}-full"
+          hx-post="{% url 'maletin_update_row' row.codigo row.funcion %}"
+          hx-target="#row-{{ row.codigo }}-{{ row.funcion }}"
+          hx-swap="outerHTML">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-save btn-sm">Guardar</button>
+    </form>
+  </td>
+</tr>

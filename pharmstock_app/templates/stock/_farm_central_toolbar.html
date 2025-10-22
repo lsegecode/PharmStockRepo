@@ -1,0 +1,19 @@
+{% comment %} {# Parámetros: view ('all' | 'cantidad_existente' | 'punto_pedido' | 'stock_ideal' | 'stock_critico') #} {% endcomment %}
+<div class="mb-2 d-flex align-items-center gap-2">
+  <div class="btn-group">
+    <a class="btn {% if view == 'all' %}btn-primary text-white{% else %}btn-outline-primary{% endif %}"
+       href="{% url 'farm_central' %}">Editar todo</a>
+
+    <a class="btn {% if view == 'cantidad_existente' %}btn-primary text-white{% else %}btn-outline-primary{% endif %}"
+       href="{% url 'farm_central_onecol' 'cantidad_existente' %}">Solo Cant. existente</a>
+
+    <a class="btn {% if view == 'punto_pedido' %}btn-primary text-white{% else %}btn-outline-primary{% endif %}"
+       href="{% url 'farm_central_onecol' 'punto_pedido' %}">Solo Punto Pedido</a>
+
+    <a class="btn {% if view == 'stock_ideal' %}btn-primary text-white{% else %}btn-outline-primary{% endif %}"
+       href="{% url 'farm_central_onecol' 'stock_ideal' %}">Solo Stock Ideal</a>
+
+    <a class="btn {% if view == 'stock_critico' %}btn-primary text-white{% else %}btn-outline-primary{% endif %}"
+       href="{% url 'farm_central_onecol' 'stock_critico' %}">Solo Stock Crítico</a>
+  </div>
+</div>
