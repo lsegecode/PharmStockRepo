@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<h2>Panel de Stock</h2>
+
+<!-- Logo de EME -->
+<div class="text-center mt-4">
+</div>
+
+    <!-- Main content -->
+    <div class="container text-center mt-5">
+        <h1 class="fw-bold mb-4">Bienvenido, {{ request.user.username }} 👋</h1>
+        <p class="text-muted">Este es el panel interno del sistema de stock.</p>
+  <img src="{% static 'stock/img/eme_logo.png' %}" alt="Logo EME" width="200" height="auto" class="img-fluid shadow-sm rounded">
+
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <a href="/farm-central/" class="btn btn-primary btn-lg shadow-sm">
+                🧪 Farm Central
+            </a>
+            <a href="/maletin/" class="btn btn-secondary btn-lg shadow-sm">
+                💼 Maletines
+            </a>
+        </div>
+    </div>
+{% endblock %}

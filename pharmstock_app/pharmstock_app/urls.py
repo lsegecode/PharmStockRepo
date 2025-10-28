@@ -1,10 +1,14 @@
 from django.contrib import admin
 from django.urls import path
-from stock import views as stock_views
+from stock import views as stock_views, views_auth
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', stock_views.home, name='home'),
+    path('home2/', stock_views.home2, name='home2'),
+
+    path('login/', views_auth.login_view, name='login'),
+    path('logout/', views_auth.logout_view, name='logout'),
 
     # Ventana 1
     path('farm-central/', stock_views.farm_central_view, name='farm_central'),

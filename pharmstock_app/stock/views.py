@@ -8,12 +8,21 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.template.loader import render_to_string
+from django.contrib.auth.decorators import login_required
+
 
 from .models import Insumo, StockFarmCentral, StockMaletin, StockMaletinMov
 
+
+
 @ensure_csrf_cookie
-def home(request):
+def home2(request):
     return render(request, 'stock/home.html')
+
+@ensure_csrf_cookie
+@login_required
+def home(request):
+    return render(request, 'auth/home.html')
 
 # -------- Ventana 1: Farm Central --------
 
