@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('home')  # si ya está logueado, va directo
+        return redirect('home')
 
     if request.method == 'POST':
         username = request.POST['username']
@@ -13,6 +13,12 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+            
+            # Opcional: mostrar qué base de datos usará
+            db_name = request.session.get('database', 'default')
+            if db_name != 'default':
+                messages.success(request, f"Acceso a base de datos: {db_name.upper()}")
+            
             return redirect('home')
         else:
             messages.error(request, "Usuario o contraseña incorrectos.")

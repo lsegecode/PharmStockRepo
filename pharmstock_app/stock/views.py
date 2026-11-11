@@ -9,11 +9,24 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
-
+from functools import wraps
+from django.core.exceptions import PermissionDenied
 
 from .models import Insumo, StockFarmCentral, StockMaletin, StockMaletinMov
 
-
+def verificar_acceso_db(view_func):
+    """Decorador opcional para verificar acceso a base de datos"""
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            raise PermissionDenied("Debe estar autenticado")
+        
+        db_name = request.session.get('database')
+        if not db_name:
+            raise PermissionDenied("No tiene acceso a ninguna base de datos")
+        
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 @ensure_csrf_cookie
 def home2(request):
@@ -35,6 +48,7 @@ FARM_ONECOL_LABELS = {
 }
 
 @ensure_csrf_cookie
+@verificar_acceso_db
 def farm_central_view(request):
     rows = []
     stocks = StockFarmCentral.objects.all()
@@ -57,6 +71,7 @@ def farm_central_view(request):
 
 @csrf_protect
 @transaction.atomic
+@verificar_acceso_db
 def farm_central_save_all(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
@@ -115,6 +130,7 @@ def farm_central_save_all(request):
     return JsonResponse({'ok': True, 'updated': updated})
 
 @transaction.atomic
+@verificar_acceso_db
 def farm_central_update_row(request, codigo):
     """
     Actualiza una fila de Farm Central:
@@ -202,6 +218,7 @@ def farm_central_update_row(request, codigo):
     return HttpResponse(html)
 
 @ensure_csrf_cookie
+@verificar_acceso_db
 def farm_central_onecol_view(request, col):
     """
     Vista 'una sola columna' para Farm Central.
@@ -250,6 +267,7 @@ MALETIN_ONECOL_LABELS = {
 
 
 @ensure_csrf_cookie
+@verificar_acceso_db
 def maletin_view(request):
     # si no viene ?funcion=..., usamos la por defecto
     funcion = request.GET.get('funcion') or DEFAULT_FUNCION
@@ -292,6 +310,7 @@ def maletin_view(request):
 
 @csrf_protect
 @transaction.atomic
+@verificar_acceso_db
 def maletin_save_all(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
@@ -364,6 +383,7 @@ def maletin_save_all(request):
     return JsonResponse({'ok': True, 'changed_qty': changed_qty, 'changed_ideal': changed_ideal})
 
 @transaction.atomic
+@verificar_acceso_db
 def maletin_update_row(request, codigo, funcion):
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
@@ -435,6 +455,7 @@ def maletin_update_row(request, codigo, funcion):
     return HttpResponse(html)
 
 @ensure_csrf_cookie
+@verificar_acceso_db
 def maletin_onecol_view(request, col):
     # validar columna
     if col not in MALETIN_ONECOL_LABELS:

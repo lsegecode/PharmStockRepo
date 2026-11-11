@@ -47,6 +47,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'pharmstock_app.middleware.DatabaseRoutingMiddleware',  
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
@@ -91,14 +92,37 @@ DATABASES = {
             'extra_params': os.getenv('DB_EXTRA', 'TrustServerCertificate=yes;MARS_Connection=Yes;').strip(),
         },
     },
+    'eme_rcia': {
+        'ENGINE': 'mssql',
+        'NAME': 'EME_RCIA',  # ← Nombre fijo de la base
+        'HOST': os.getenv('DB_HOST', '').strip(),
+        'PORT': os.getenv('DB_PORT', '1433').strip(),
+        'USER': os.getenv('DB_USER', '').strip(),
+        'PASSWORD': os.getenv('DB_PASSWORD', '').strip(),
+        'OPTIONS': {
+            'driver': os.getenv('DB_DRIVER', 'ODBC Driver 17 for SQL Server').strip(),
+            'extra_params': os.getenv('DB_EXTRA', 'TrustServerCertificate=yes;MARS_Connection=Yes;').strip(),
+        },
+    },
+    'eme_ctes': {
+        'ENGINE': 'mssql',
+        'NAME': 'EME_CTES',  # ← Nombre fijo de la base
+        'HOST': os.getenv('DB_HOST', '').strip(),
+        'PORT': os.getenv('DB_PORT', '1433').strip(),
+        'USER': os.getenv('DB_USER', '').strip(),
+        'PASSWORD': os.getenv('DB_PASSWORD', '').strip(),
+        'OPTIONS': {
+            'driver': os.getenv('DB_DRIVER', 'ODBC Driver 17 for SQL Server').strip(),
+            'extra_params': os.getenv('DB_EXTRA', 'TrustServerCertificate=yes;MARS_Connection=Yes;').strip(),
+        },
+    },
     'auth': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'auth_users.sqlite3',
     },
 }
 
-DATABASE_ROUTERS = ['stock.db_router.AuthRouter']
-
+DATABASE_ROUTERS = ['pharmstock_app.db_router.AuthRouter']
 # ==========================
 # AUTH
 # ==========================
